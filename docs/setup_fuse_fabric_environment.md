@@ -247,4 +247,4 @@ This is fixed in JBoss Fuse 6.3.0.R5
 
 # Example of Fuse Fabric8 topology with Insight
 
-![FuseFabric8TopologyWithInsight_example.png](./images/FuseFabric8TopologyWithInsight_example.png)
+![FuseFabric8TopologyWithInsight_example.png](../images/FuseFabric8TopologyWithInsight_example.png)
