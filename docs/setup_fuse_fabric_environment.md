@@ -11,21 +11,21 @@
     ```
 
 2. Export the _Fuse Fabric_ public auto-signed certificate (`fuse-fabric.cert`)
-  ```zsh
-  keytool -export -alias fuse-fabric \
-  -keystore fuse-fabric-ssl.jks \
-  -storepass P@ssw0rd -v \
-  -file fuse-fabric.cert
-  ```
+    ```zsh
+    keytool -export -alias fuse-fabric \
+    -keystore fuse-fabric-ssl.jks \
+    -storepass P@ssw0rd -v \
+    -file fuse-fabric.cert
+    ```
 
 3. Create the _Fuse Fabric_ truststore (`fuse_ts.jks`) containing the _Fuse Fabric_ public certificate (`fuse-fabric.cert`)
-```zsh
-keytool -import -alias fuse-fabric \
--keystore fuse_ts.jks \
--storepass P@ssw0rd -keypass P@ssw0rd \
--v -noprompt \
--file fuse-fabric.cert 
-```
+    ```zsh
+    keytool -import -alias fuse-fabric \
+    -keystore fuse_ts.jks \
+    -storepass P@ssw0rd -keypass P@ssw0rd \
+    -v -noprompt \
+    -file fuse-fabric.cert 
+    ```
 
 # Creating a _JBoss Fuse 6.3 Fabric_ on a local machine
 
@@ -57,17 +57,17 @@ keytool -import -alias fuse-fabric \
     ```
 
 2. Declare the _Fuse Fabric_ truststore (`fuse_ts.jks`), containing the _Fuse Fabric_ public certificate (`fuse-fabric.cert`), on the _Fuse_ root server:
-  ```zsh
-  # export EXTRA_JAVA_OPTS # Additional JVM options
-  export EXTRA_JAVA_OPTS='-Djavax.net.ssl.trustStorePassword=P@ssw0rd -Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks'
-  ```
+    ```zsh
+    # export EXTRA_JAVA_OPTS # Additional JVM options
+    export EXTRA_JAVA_OPTS='-Djavax.net.ssl.trustStorePassword=P@ssw0rd -Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks'
+    ```
 
 3. Start the _fuse_ server in foreground
-  ```zsh
-  <fuse_install_dir>/bin/fuse
-  ```
+    ```zsh
+    <fuse_install_dir>/bin/fuse
+    ```
 
-4.	Create a secure (`TLS`-enabled) _Fuse Fabric_ environment with only one _fabric server_ (_fabric ensemble_ of only 1 server):
+4. Create a secure (`TLS`-enabled) _Fuse Fabric_ environment with only one _fabric server_ (_fabric ensemble_ of only 1 server):
     ```zsh
     fabric:create --clean --new-user admin --new-user-password admin123 \
     --new-user-role admin,manager,viewer,Monitor,Operator,Maintainer,Deployer,Auditor,Administrator,SuperUser \
@@ -98,21 +98,22 @@ profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keypassword=\${crypt:
 Run the following command lines to enforce the indicated customisations:
 
 1. Create the customized `ws-http-gateway` profile
-  ```zsh
-  fabric:profile-create --parent gateway-http ws-http-gateway
-  ```
-  ```zsh
-  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/zooKeeperPath=/fabric/registry/clusters/apis ws-http-gateway
-  ```
+    ```zsh
+    fabric:profile-create --parent gateway-http ws-http-gateway
+    ```
+    ```zsh
+    fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/zooKeeperPath=/fabric/registry/clusters/apis ws-http-gateway
+    ```
 
 2. Deactivate the automatic addition of trailing forward slashes when the URL does not have one: `addMissingTrailingSlashes=false`
-  ```zsh
-  fabric:profile-edit -p io.fabric8.gateway.http/addMissingTrailingSlashes=false ws-http-gateway
-  ```
+    ```zsh
+    fabric:profile-edit -p io.fabric8.gateway.http/addMissingTrailingSlashes=false ws-http-gateway
+    ```
+
 3. Enforce explicit URI versioning by customising the URI template: `/version/{version}{contextPath}/`
-  ```zsh
-  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
-  ```
+    ```zsh
+    fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
+    ```
 
 ### Customized `ws-https-gateway` profile to secure the web services
 
@@ -144,25 +145,25 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
 ## Secure the `jetty` server of the _fabric server_
 
 1. Deploy the custom `ssl` profile on the _fabric-server_ container
-  ```zsh
-  fabric:container-add-profile fabric-server ssl
-  ```
+    ```zsh
+    fabric:container-add-profile fabric-server ssl
+    ```
 
 2. Exit the _fabric-server_ shell
-  ```zsh
-  exit
-  ```
+    ```zsh
+    exit
+    ```
 
 3. Start the _fabric-server_ service
-  ```zsh
-  <fuse_install_dir>/bin/start
-  ```
+    ```zsh
+    <fuse_install_dir>/bin/start
+    ```
 
 4. Verify the _fabric-server_ is running
-  ```zsh
-  $ <fuse_install_dir>/bin/status
-  Running ...
-  ```
+    ```zsh
+    $ <fuse_install_dir>/bin/status
+    Running ...
+    ```
 
 ## Create _Fabric containers_ (managed containers)
 
