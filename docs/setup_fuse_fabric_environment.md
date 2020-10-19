@@ -31,13 +31,15 @@ keytool -import -alias fuse-fabric \
 
 ## Used variables:
 - `<crypted_password>`: encrypted password using `fabric:encrypt-message` command. For example, `MkLYSntvjEMD2nSyyBkePJ9ajg+WhaBl` obtained through the following instruction:
-  ```
-  JBossFuse:karaf@fabric-server> fabric:crypt-algorithm-get
-  PBEWithMD5AndDES
+  ```zsh
   JBossFuse:karaf@fabric-server> fabric:encrypt-message P@ssw0rd
   Encrypting message P@ssw0rd
   Using algorithm PBEWithMD5AndDES and password P@ssw0rd
   Result: MkLYSntvjEMD2nSyyBkePJ9ajg+WhaBl
+  ```
+  ```zsh
+  JBossFuse:karaf@fabric-server> fabric:crypt-algorithm-get
+  PBEWithMD5AndDES
   ``` 
 
 - `<fuse_install_dir>`: installation home directory for _Red Hat Jboss Fuse 6.3_. For example, `/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/jboss-fuse-6.3.0.redhat-356`
