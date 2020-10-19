@@ -29,7 +29,8 @@
 
 # Creating a _JBoss Fuse 6.3 Fabric_ on a local machine
 
-## Used variables:
+## Used variables
+
 - `<crypted_password>`: encrypted password using `fabric:encrypt-message` command. For example, `MkLYSntvjEMD2nSyyBkePJ9ajg+WhaBl` obtained through the following instruction:
   ```zsh
   JBossFuse:karaf@fabric-server> fabric:encrypt-message P@ssw0rd
