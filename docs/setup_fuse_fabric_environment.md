@@ -4,9 +4,9 @@
     ```zsh
     keytool -genkeypair -keyalg RSA -keysize 2048 -validity 3650 \
     -dname "CN=fuse-fabric,OU=Red Hat Consulting,O=Red Hat France,L=Paris,ST=Ile De France,C=FR" \
-    -alias fuse-fabric \ 
+    -alias fuse-fabric \
     -keypass P@ssw0rd -storepass P@ssw0rd \
-    -v -ext san=DNS:localhost \
+    -v -ext "san=DNS:localhost" \
     -keystore fuse-fabric-ssl.jks
     ```
 
@@ -29,6 +29,21 @@ keytool -import -alias fuse-fabric \
 
 # Creating a _JBoss Fuse 6.3 Fabric_ on a local machine
 
+## Used variables:
+- `<crypted_password>`: encrypted password using `fabric:encrypt-message` command. For example, `MkLYSntvjEMD2nSyyBkePJ9ajg+WhaBl` obtained through the following instruction:
+  ```
+  JBossFuse:karaf@fabric-server> fabric:crypt-algorithm-get
+  PBEWithMD5AndDES
+  JBossFuse:karaf@fabric-server> fabric:encrypt-message P@ssw0rd
+  Encrypting message P@ssw0rd
+  Using algorithm PBEWithMD5AndDES and password P@ssw0rd
+  Result: MkLYSntvjEMD2nSyyBkePJ9ajg+WhaBl
+  ``` 
+
+- `<fuse_install_dir>`: installation home directory for _Red Hat Jboss Fuse 6.3_. For example, `/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/jboss-fuse-6.3.0.redhat-356`
+
+- `<path_to_keystores>`: absolute path to the keystores folder. For instance, For example, `/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/security`.
+
 ## Create a _Fabric Server_
 
 1. Name the current _Fuse_ root server instance `fabric-server` by editing the `<install_dir>/etc/system.properties` `karaf.name` property.
@@ -45,16 +60,36 @@ keytool -import -alias fuse-fabric \
   export EXTRA_JAVA_OPTS='-Djavax.net.ssl.trustStorePassword=P@ssw0rd -Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks'
   ```
 
-3.	Create a secure (`TLS`-enabled) _Fuse Fabric_ environment with only one _fabric server_ (_fabric ensemble_ of only 1 server):
+3. Start the _fuse_ server in foreground
+  ```zsh
+  <fuse_install_dir>/bin/fuse
+  ```
+
+4.	Create a secure (`TLS`-enabled) _Fuse Fabric_ environment with only one _fabric server_ (_fabric ensemble_ of only 1 server):
     ```zsh
     fabric:create --clean --new-user admin --new-user-password admin123 \
     --new-user-role admin,manager,viewer,Monitor,Operator,Maintainer,Deployer,Auditor,Administrator,SuperUser \
     --zookeeper-password P@ssw0rd --resolver manualip --global-resolver manualip \
     --manual-ip localhost --profile fabric \
-    --wait-for-provisioning
+    --verbose --wait-for-provisioning
     ```
 
 ## Create customized profiles
+
+### Customized `ssl` profile to enable `SSL/TLS` on the `jetty` server 
+
+Run the following command lines:
+
+```zsh
+profile-create --parent default ssl
+profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.enabled=false ssl
+profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.secure.enabled=true ssl
+profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port.secure=\${port:8443,8543} ssl
+profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore=<path_to_keystores>/fuse-fabric-ssl.jks ssl
+profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore.type=jks ssl
+profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.password=\${crypt:<crypted_password>} ssl
+profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keypassword=\${crypt:<crypted_password>} ssl
+```
 
 ### Customized `gateway-http` profile
 
@@ -68,11 +103,11 @@ Run the following command lines to enforce the indicated customisations:
   fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/zooKeeperPath=/fabric/registry/clusters/apis ws-http-gateway
   ```
 
-2. Enforce explicit URI versioning by customising the URI template: `/version/{version}{contextPath}/`
+2. Deactivate the automatic addition of trailing forward slashes when the URL does not have one: `addMissingTrailingSlashes=false`
   ```zsh
   fabric:profile-edit -p io.fabric8.gateway.http/addMissingTrailingSlashes=false ws-http-gateway
   ```
-3. Deactivate the automatic addition of trailing forward slashes when the URL does not have one: `addMissingTrailingSlashes=false`
+3. Enforce explicit URI versioning by customising the URI template: `/version/{version}{contextPath}/`
   ```zsh
   fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
   ```
@@ -98,11 +133,34 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/httpEnabled=true ws-https-ga
 fabric:profile-edit -p io.fabric8.gateway.detecting/port=9095 ws-https-gateway
 fabric:profile-edit -p io.fabric8.gateway.detecting/sslEnabled=true ws-https-gateway
 fabric:profile-edit -p io.fabric8.gateway.detecting/keyStoreURL=file://<path_to_keystores>/fuse-fabric-ssl.jks ws-https-gateway
-fabric:profile-edit -p io.fabric8.gateway.detecting/keyPassword=P@ssw0rd ws-https-gateway
-fabric:profile-edit -p io.fabric8.gateway.detecting/keyStorePassword=P@ssw0rd ws-https-gateway
+fabric:profile-edit -p io.fabric8.gateway.detecting/keyPassword=\${crypt:<crypted_password>} ws-https-gateway
+fabric:profile-edit -p io.fabric8.gateway.detecting/keyStorePassword=\${crypt:<crypted_password>} ws-https-gateway
 fabric:profile-edit -p io.fabric8.gateway.detecting/trustStoreURL=file://<path_to_keystores>/fuse_ts.jks ws-https-gateway
-Fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=P@ssw0rd ws-https-gateway
+fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:<crypted_password>} ws-https-gateway
 ```
+
+## Secure the `jetty` server of the _fabric server_
+
+1. Deploy the custom `ssl` profile on the _fabric-server_ container
+  ```zsh
+  fabric:container-add-profile fabric-server ssl
+  ```
+
+2. Exit the _fabric-server_ shell
+  ```zsh
+  exit
+  ```
+
+3. Start the _fabric-server_ service
+  ```zsh
+  <fuse_install_dir>/bin/start
+  ```
+
+4. Verify the _fabric-server_ is running
+  ```zsh
+  $ <fuse_install_dir>/bin/status
+  Running ...
+  ```
 
 ## Create _Fabric containers_ (managed containers)
 
@@ -110,26 +168,22 @@ Fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=P@ssw0rd 
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile ssl ws-http-gateway ws-https-gateway \
+    --profile ssl \
+    --profile ws-http-gateway \
+    --profile ws-https-gateway \
     fabric-server ws-gateway-node
     ```
-2.	Create the `mq-gateway-node` managed container for messaging brokers gateways
-    ```zsh
-    fabric:container-create-child \
-    --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile ssl mq-gateway \
-    fabric-server mq-gateway-node
-    ```
 
-3.	Create the `msg-brokers-node` managed container for _JBoss AMQ 6.3_ brokers
+2.	Create the `msg-brokers-node` managed container for _JBoss AMQ 6.3_ brokers
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
     --profile ssl \
+    --profile gateway-mq \
     fabric-server msg-brokers-node
     ```
 
-4.	Create the `fuse-apps-node` managed container for _Fuse 6.3_ applications
+3.	Create the `fuse-apps-node` managed container for _Fuse 6.3_ applications
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
