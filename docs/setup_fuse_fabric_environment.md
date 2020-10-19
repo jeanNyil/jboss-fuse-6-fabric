@@ -90,41 +90,17 @@ This profile must be deployed in the same container as the customised `ws-http-g
 Run the following command lines:
 ```zsh 
 fabric:profile-create --parent gateway-mq ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/mqttEnabled=false ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/openWireEnabled=false ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/stompEnabled=false ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/amqpEnabled=false ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/httpEnabled=true ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/port=9095 ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/sslEnabled=true ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/keyStoreURL=file://<path_to_keystores>/fuse-fabric-ssl.jks ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/keyPassword=P@ssw0rd ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/keyStorePassword=P@ssw0rd ws-https-gateway
-```
-```zsh
 fabric:profile-edit -p io.fabric8.gateway.detecting/trustStoreURL=file://<path_to_keystores>/fuse_ts.jks ws-https-gateway
-```
-```zsh
 Fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=P@ssw0rd ws-https-gateway
 ```
 
