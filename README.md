@@ -1,0 +1,1 @@
+# jboss-fuse-6-fabric
