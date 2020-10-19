@@ -65,7 +65,7 @@ Run the following command lines to enforce the indicated customisations:
   fabric:profile-create --parent gateway-http ws-http-gateway
   ```
   ```zsh
-  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/      zooKeeperPath=/fabric/registry/clusters/apis ws-http-gateway
+  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/zooKeeperPath=/fabric/registry/clusters/apis ws-http-gateway
   ```
 
 2. Enforce explicit URI versioning by customising the URI template: `/version/{version}{contextPath}/`
@@ -74,7 +74,7 @@ Run the following command lines to enforce the indicated customisations:
   ```
 3. Deactivate the automatic addition of trailing forward slashes when the URL does not have one: `addMissingTrailingSlashes=false`
   ```zsh
-  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/      uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
+  fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
   ```
 
 ### Customized `ws-https-gateway` profile to secure the web services
