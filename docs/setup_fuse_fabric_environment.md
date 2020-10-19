@@ -169,7 +169,8 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
 
 ### :warning: IMPORTANT
 - The truststore for each root container (_fabric server_ or _fabric container_) must be set in the `<fuse_install_dir>/bin/setenv` script under the additional _JVM_ options variable (`EXTRA_JAVA_OPTS`)
-- The truststore for child-containers can be set while creating them through the `--jvm-opts` of the `fabric:container-create-child` command.
+- The truststore for child-containers can be set while creating them through the `--jvm-opts` of the `fabric:container-create-child` command
+- The `ssl` profile should not be added to child-containers because the gateway-http is not able to discover secured (`HTTPS`) services. The child-container `jetty` server must be left with plain `HTTP`.
 
 ### Instructions
 
@@ -177,7 +178,6 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile ssl \
     --profile ws-http-gateway \
     --profile ws-https-gateway \
     fabric-server ws-gateway-node
@@ -187,7 +187,6 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile ssl \
     --profile gateway-mq \
     fabric-server msg-brokers-node
     ```
@@ -196,7 +195,6 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile ssl \
     fabric-server fuse-apps-node
     ```
 
