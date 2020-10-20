@@ -77,9 +77,9 @@
     --verbose --wait-for-provisioning
     ```
 
-## Create customized profiles
+## Create customized _fabric profiles_
 
-### Customized `ssl` profile to enable `SSL/TLS` on the `jetty` server 
+### Customized `ssl` _fabric profile_ to enable `SSL/TLS` on the `jetty` server 
 
 Run the following command lines:
 
@@ -94,11 +94,11 @@ profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.password=\${crypt:<cr
 profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keypassword=\${crypt:<crypted_password>} ssl
 ```
 
-### Customized `gateway-http` profile
+### Customized `gateway-http` _fabric profile_
 
 Run the following command lines to enforce the indicated customisations:
 
-1. Create the customized `ws-http-gateway` profile
+1. Create the customized `ws-http-gateway` _fabric profile_
     ```zsh
     fabric:profile-create --parent gateway-http ws-http-gateway
     ```
@@ -116,7 +116,7 @@ Run the following command lines to enforce the indicated customisations:
     fabric:profile-edit -p io.fabric8.gateway.http.mapping-apis/uriTemplate=/version/{version}{contextPath}/ ws-http-gateway
     ```
 
-### Customized `ws-https-gateway` profile to secure the web services
+### Customized `ws-https-gateway` _fabric profile_ to secure the web services
 
 This profile must be deployed in the same container as the customised `ws-http-gateway` (see above) for the workaround to work. Below are the reasons of this workaround:
 - The `gateway-http` profile does not support `SSL`
@@ -145,7 +145,7 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
 
 ## Secure the `jetty` server of the _fabric server_
 
-1. Deploy the custom `ssl` profile on the _fabric-server_ container
+1. Deploy the custom `ssl` _fabric profile_ on the _fabric-server_ container
     ```zsh
     fabric:container-add-profile fabric-server ssl
     ```
