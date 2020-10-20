@@ -84,14 +84,14 @@
 Run the following command lines:
 
 ```zsh
-profile-create --parent default ssl
-profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.enabled=false ssl
-profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.secure.enabled=true ssl
-profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port.secure=\${port:8443,8543} ssl
-profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore=<path_to_keystores>/fuse-fabric-ssl.jks ssl
-profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore.type=jks ssl
-profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.password=\${crypt:<crypted_password>} ssl
-profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keypassword=\${crypt:<crypted_password>} ssl
+fabric:profile-create --parent default ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.enabled=false ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.secure.enabled=true ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port.secure=\${port:8443,8543} ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore=<path_to_keystores>/fuse-fabric-ssl.jks ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keystore.type=jks ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.password=\${crypt:<crypted_password>} ssl
+fabric:profile-edit --pid org.ops4j.pax.web/org.ops4j.pax.web.ssl.keypassword=\${crypt:<crypted_password>} ssl
 ```
 
 ### Customized `gateway-http` _fabric profile_

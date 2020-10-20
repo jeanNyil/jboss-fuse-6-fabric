@@ -1,78 +1,119 @@
 
-# Secure a Fabric Hawtio console with Red Hat SSO 7.2
+# Secure a _Fuse Fabric_ environment with _Red Hat SSO 7.3_
 
-## Pre-requisites
+## Assumptions and pre-requisites
+
+- It is assumed _Red Hat SSO 7.3.8_ (upstream _keycloak_ version: _4.8.20.Final-redhat-00001_) is leveraged to secure the _Fuse Fabric_ environment 
+- The _Red Hat SSO 7.3 Client Adapter for fuse_ maven artifacts available either via _Nexus_ or _Artifactory_ or other accessible maven repository integrated with _Fuse 6.3 Fabric_ environment. For instance, the _Red Hat SSO **7.3.8** Client Adapter for fuse_ can be downloaded via this [link](https://access.redhat.com/jbossnetwork/restricted/softwareDetail.html?softwareId=81921&product=core.service.rhsso&version=7.3&downloadType=securityPatches)
+- Reference documentation: [_JBoss Fuse 6 Adapter_ for _Red Hat SSO 7.3_](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html/securing_applications_and_services_guide/openid_connect_3#fuse_adapter)
+- :warning: **NOTE - when _SSH_ and/or _JMX_ interfaces (_administration_) ** are secured with _Red Hat SSO_**:
+- If _OTP_ is set on users, make sure it is disabled on the ‘Direct Grant’ Authentication Flow to allow access on _SSH_ and _JMX_ endpoints secured with _Red Hat SSO_
+- Authenticated user with adequate roles cannot start containers. Hawtio seems to use the Fabric _admin_ user by default.
+
+## Create Red Hat SSO _clients_ for the secured _Fuse Fabric_ environment interfaces
+
+### `hawtio-client` to secure the _Fabric Hawtio console_
+
+Create the `hawtio-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
+- `Access type` must be `public`
+- `Redirect URI` must point to _Fuse Fabric_ environment _Hawtio_. For instance: `https://localhost:8443/hawtio/*` or `https://<console_vip>:<console_vip_port>/hawtio/*`
+  - You must also have a corresponding _Web Origin_ configured. In this case, `https://localhost:8443` or `https://<vip_host>:<vip_port>`
+- The following `client roles` must be added to the `hawtio-client` (according to the _Fuse Fabric_ environment creation):
+  ```
+  admin
+  manager
+  viewer
+  Monitor
+  Operator
+  Maintainer
+  Deployer
+  Auditor
+  Administrator
+  SuperUser
+  ```
+
+### `ssh-jmx-admin-client` to secure the _Fuse_ administration services
+
+:construction: *TODO*
+
+## Create customized _fabric profiles_ to secure the _Fuse Fabric_ environment
+
+### `rh-sso-hawtio` _fabric profile_ to secure the _Fabric Hawtio console_
+
+1. Create the `rh-sso-hawtio` _fabric profile_ with the following instructions:
+    ```zsh
+    fabric:profile-create --parent default rh-sso-hawtio 
+    fabric:profile-edit --system hawtio.realm=keycloak rh-sso-hawtio
+    fabric:profile-edit --system hawtio.rolePrincipalClasses=org.keycloak.adapters.jaas.RolePrincipal,org.apache.karaf.jaas.boot.principal.RolePrincipal rh-sso-hawtio
+    fabric:profile-edit --system hawtio.keycloakEnabled=true rh-sso-hawtio 
+    fabric:profile-edit --system hawtio.keycloakClientConfig=profile:keycloak-hawtio-client.json rh-sso-hawtio
+    fabric:profile-edit --pid org.keycloak/jaasBearerKeycloakConfigFile=profile:keycloak-hawtio.json rh-sso-hawtio
+    fabric:profile-edit --repository mvn:org.keycloak/keycloak-osgi-features/4.8.20.Final-redhat-00001/xml/features rh-sso-hawtio
+    fabric:profile-edit --feature keycloak rh-sso-hawtio
+    ```
  
-Make sure the following json files are positioned in the ${karaf.etc} directory:
+2. Add the `keycloak-hawtio-client.json` and `keycloak-hawtio.json` files as _resources_ to the `rh-sso-hawtio` _fabric profile_  (either via the _Fabric Hawtio console_ or via the `git` command usage).
+
+    -	`keycloak-hawtio-client.json` (please, adapt below content according to your environment)
+        ```json
+        {
+          "realm": "demo",
+          "auth-server-url": "https://localhost:8443/auth",
+          "ssl-required": "all",
+          "resource": "hawtio-client",
+          "public-client": true,
+          "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
+          "truststore-password" : "P@ssw0rd"
+        }
+        ```
+    -	`keycloak-hawtio.json` (please, adapt below content according to your environment)
+        ```json
+        {
+          "realm" : "demo",
+          "resource" : "jaas",
+          "bearer-only" : true,
+          "auth-server-url" : "https://localhost:8443/auth",
+          "ssl-required" : "all",
+          "use-resource-role-mappings": false,
+          "principal-attribute": "preferred_username",
+          "allow-any-hostname" : false,
+          "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
+          "truststore-password" : "P@ssw0rd"
+        }
+        ```
+3. Deploy the custom `rh-sso-hawtio` _fabric profile_ to the _fabric ensemble containers_ or _fabric root managed containers_
+    ```zsh
+    fabric:container-add-profile fabric-server ssl
+    ```
 
 
- NOTE: Thanks to https://access.redhat.com/support/cases/#/case/01929341, it will be             possible to reference the json resources using the fabric profile handler
-
-
--	keycloak-direct-access.json (please, adapt below content accordingly)
-{
-  "realm": "demo",
-  "auth-server-url": "https://localhost:8443/auth",
-  "ssl-required": "all",
-  "resource": "ssh-jmx-admin-client",
-  "credentials": {
-    "secret": "ab91126a-e4eb-4156-9f02-aa8a1fd710b9"
-  },
-  "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
-  "truststore-password" : "P@ssw0rd"
-}
--	keycloak-hawtio-client.json (please, adapt below content accordingly)
-{
-  "realm": "demo",
-  "auth-server-url": "https://localhost:8443/auth",
-  "ssl-required": "all",
-  "resource": "hawtio-client",
-  "public-client": true,
-  "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
-  "truststore-password" : "P@ssw0rd"
-}
--	keycloak-hawtio.json (please, adapt below content accordingly)
-{
-  "realm" : "demo",
-  "resource" : "jaas",
-  "bearer-only" : true,
-  "auth-server-url" : "https://localhost:8443/auth",
-  "ssl-required" : "all",
-  "use-resource-role-mappings": false,
-  "principal-attribute": "preferred_username",
-  "allow-any-hostname" : false,
-  "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
-  "truststore-password" : "P@ssw0rd"
-}
-Create the rh-sso-hawtio profile to secure the Fuse Management Console Hawtio
- $ profile-create --parent default rh-sso-hawtio 
- $ profile-edit --system hawtio.realm=keycloak rh-sso-hawtio
- $ profile-edit --system hawtio.rolePrincipalClasses=org.keycloak.adapters.
-   jaas.RolePrincipal,org.apache.karaf.jaas.boot.principal.RolePrincipal
-   rh-sso-hawtio
- $ profile-edit --system hawtio.keycloakEnabled=true rh-sso-hawtio 
- $ profile-edit --system hawtio.keycloakClientConfig=profile:keycloak-
-   hawtio-client.json rh-sso-hawtio
- $ profile-edit --pid org.keycloak/jaasBearerKeycloakConfigFile=
-   profile:keycloak-hawtio.json rh-sso-hawtio
- $ profile-edit --repository mvn:org.keycloak/keycloak-osgi-features/
-   3.4.3.Final-redhat-2/xml/features rh-sso-hawtio
- $ profile-edit --feature keycloak rh-sso-hawtio
- 
-Add the keycloak-hawtio-client.json and keycloak-hawtio.json files as resources to the rh-sso-hawtio profile  (through Hawtio or through the git command)
-
+### `rh-sso-administration` _profile_ to secure the _Fabric Hawtio console_
 Create the rh-sso-administration profile to secure the administration services (SSH and JMX)
- $ profile-create --parent default rh-sso-administration
- $ profile-edit --pid io.fabric8.jolokia/realm=keycloak  
+ $ fabric:profile-create --parent default rh-sso-administration
+ $ fabric:profile-edit --pid io.fabric8.jolokia/realm=keycloak  
    rh-sso-administration 
- $ profile-edit --pid org.keycloak/jaasDirectAccessKeycloakConfigFile=
+ $ fabric:profile-edit --pid org.keycloak/jaasDirectAccessKeycloakConfigFile=
    profile:keycloak-direct-access.json rh-sso-administration
- $ profile-edit --repository mvn:org.keycloak/keycloak-osgi-features/
+ $ fabric:profile-edit --repository mvn:org.keycloak/keycloak-osgi-features/
    3.4.3.Final-redhat-2/xml/features rh-sso-administration
- $ profile-edit --feature keycloak-jaas rh-sso-administration
+ $ fabric:profile-edit --feature keycloak-jaas rh-sso-administration
 Add the keycloak-direct-access.json files as resources to the rh-sso-administration profile (through Hawtio or through the git command)
 
-For Hawtio, add the rh-sso-hawtio profile to ensemble containers or fabric root managed containers
+-	`keycloak-direct-access.json` (please, adapt below content according to your environment)
+    ```json
+    {
+      "realm": "demo",
+      "auth-server-url": "https://localhost:8443/auth",
+      "ssl-required": "all",
+      "resource": "ssh-jmx-admin-client",
+      "credentials": {
+        "secret": "ab91126a-e4eb-4156-9f02-aa8a1fd710b9"
+      },
+      "truststore" : "/Users/jnyilimb/workspace/security/fuse/truststore.jks",
+      "truststore-password" : "P@ssw0rd"
+    }
+    ```
+
 For Administration Services, perform the following the steps on each container in a fabric
 Add the rh-sso-administration profile
 Connect to the container through fabric:container-connect command
@@ -87,17 +128,3 @@ Workaround: put the *.json files in the ${karaf.etc} directory
  $ cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"
  $ cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"
  $ cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json”
-
-ATTENTION:
-
-If OTP is set on users, make sure it is disabled on the ‘Direct Grant’ Authentication Flow to allow access on SSH and JMX endpoints secured by RH-SSO
-
-ATTENTION when SSH is secured via RH-SSO:
-
-Authenticated user with adequate privileges cannot start containers. Hawtio seems to use the Fabric admin user by default:
-
-JBoss Fuse 6.3.0.R4 defect:
-
-After update JBoss Fuse 6.3 to 6.3 R4, we are getting "org.xml.sax.SAXNotRecognizedException: Property 'http://javax.xml.XMLConstants/property/accessExternalDTD' is not recognized” [1]
-This is fixed in JBoss Fuse 6.3.0.R5
-[1] https://access.redhat.com/solutions/3184641
