@@ -148,7 +148,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
 
     3. The container will take into account the new _PID_ keys values automatically.
 
-    4. :warning: **OPTIONAL Workaround:** put the *.json files in the `${karaf.etc}` directory
+    4. :warning: **OPTIONAL Workaround:** put the `*.json` files in the `${karaf.etc}` directory
         ```zsh
         fabric:container-connect <fabric_container_name> 'cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"'
         fabric:container-connect <fabric_container_name> 'cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"'
