@@ -286,7 +286,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3+_ realm (e.g. `fu
 
         3. The container will take into account the new _PID_ keys values automatically.
 
-    2. Repeat the same steps above for each _fabric server_.
+    2. Repeat the same steps as above for each _fabric server_.
 
 #### :construction: - *_TODO_* - check if encountered errors persist when the _Fuse 6.3 Fabric_ environment is secured with the latest patch of _Red Hat SSO **7.3**_. Here, _Red Hat SSO **7.4.2**_ server was used :
 
