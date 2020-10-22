@@ -22,8 +22,8 @@
   Administrator
   SuperUser
   ```
-  
-- :warning: **NOTE - when _SSH_ and/or _JMX_ interfaces (_administration_) ** are secured with _Red Hat SSO_**:
+
+- :warning: **NOTE for _SSH_ and _JMX_ interfaces secured with _Red Hat SSO_**:
   - If _OTP_ is set on users, make sure it is disabled on the `Direct Grant` Authentication Flow to allow access on _SSH_ and _JMX_ endpoints secured with _Red Hat SSO_
 
 ## Used variables
