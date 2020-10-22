@@ -139,7 +139,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
     fabric:container-add-profile <fabric_server_name> rh-sso-hawtio
     ```
 
-### :construction: - WIP - `rh-sso-administration` _profile_ to secure the _Fuse_ administration services (_SSH_ and _JMX_ interfaces)
+### :construction: - _WIP_ - `rh-sso-administration` _profile_ to secure the _Fuse_ administration services (_SSH_ and _JMX_ interfaces)
 
 1. Create the `rh-sso-administration` _fabric profile_ with the following instructions:
     ```zsh
@@ -184,7 +184,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
 
     2. Repeat the same steps above for each _fabric server_.
 
-:construction: check if encountered errors are also present when integrated with the latest patch of _Red Hat SSO 7.3_ :
+#### :construction: - *_TODO_* - check if encountered errors are also present when integrated with the latest patch of _Red Hat SSO 7.3_ :
 - Secured application (_fabric container_) side:
 ```log
 2020-10-22 09:09:52,173 | INFO  | qtp429915276-409 | KeycloakDeployment               | 286 - org.jboss.logging.jboss-logging - 3.4.1.Final-redhat-00001 | Loaded URLs from https://sso.apps.cluster-eb10.sandbox1401.opentlc.com/auth/realms/fuse-fabric-demo/.well-known/openid-configuration
