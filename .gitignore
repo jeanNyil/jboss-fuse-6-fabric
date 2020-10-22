@@ -1,0 +1,3 @@
+#VSCode directories and MacOS resources
+*.DS_Store
+/.vscode
