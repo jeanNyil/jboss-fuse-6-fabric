@@ -1,15 +1,15 @@
 
-# Secure a _Fuse Fabric_ environment with _Red Hat SSO 7.3_
+# Secure a _Fuse Fabric_ environment with _Red Hat SSO 7_
 
 ## Assumptions and pre-requisites
 
-- It is assumed _Red Hat SSO 7.3.8_ (upstream _keycloak_ version: _4.8.20.Final-redhat-00001_) is leveraged to secure the _Fuse Fabric_ environment
+- It is assumed at least _Red Hat SSO 7.3.8_ (upstream _keycloak_ version: _4.8.20.Final-redhat-00001_) is leveraged to secure the _Fuse Fabric_ environment
 
 - It is assumed the _Fuse Fabric_ environment containers have the following caracteristics as far as their `jetty` servers are concerned:
   - The _fabric servers_ `jetty` is secured with `TLS` (`HTTPS`)
   - The `jetty` servers of other _fabric containers_ and _managed containers_ are not secured with `TLS` (`HTTP`)
 
-- The _Red Hat SSO 7.3 Client Adapter for fuse_ maven artifacts available either via _Nexus_ or _Artifactory_ or other accessible maven repository integrated with _Fuse 6.3 Fabric_ environment. For instance, the _Red Hat SSO **7.3.8** Client Adapter for fuse_ can be downloaded via this [link](https://access.redhat.com/jbossnetwork/restricted/softwareDetail.html?softwareId=81921&product=core.service.rhsso&version=7.3&downloadType=securityPatches).
+- The _Red Hat SSO 7.3+ Client Adapter for fuse_ maven artifacts are available either via _Nexus_ or _Artifactory_ or other accessible maven repository integrated with _Fuse 6.3 Fabric_ environment. For instance, the _Red Hat SSO **7.3.8** Client Adapter for fuse_ can be downloaded via this [link](https://access.redhat.com/jbossnetwork/restricted/softwareDetail.html?softwareId=81921&product=core.service.rhsso&version=7.3&downloadType=securityPatches).
 
 - Reference documentation: [_JBoss Fuse 6 Adapter_ for _Red Hat SSO 7.3_](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html/securing_applications_and_services_guide/openid_connect_3#fuse_adapter)
 
@@ -27,11 +27,14 @@
   SuperUser
   ```
 
+  ![rh-sso_realm_roles.png](../images/rh-sso_realm_roles.png)
+
 - :warning: **NOTE for _SSH_ and _JMX_ interfaces secured with _Red Hat SSO_**:
-  - The _Red Hat SSO 7.3 Client Adapter for fuse_ uses leverages the _Resource Owner Password Credentials_ (_Direct Grant_) authentication flow
+  - The _Red Hat SSO 7.3+ Client Adapter for fuse_ uses leverages the _Resource Owner Password Credentials_ (_Direct Grant_) authentication flow
   - The _Direct Grant_ authentication flow has a number of limitations. As far as _JBoss Fuse 6.3 Fabric_ environment is concerned, the main ones are:
     - No support for identity brokering or social login, thus the users have to be stored or imported in the _Red Hat SSO 7_ database
     - Flows are not supported (user self-registration, required actions, etc.). Thus, if _OTP_ is set on users, make sure it is disabled on the `Direct Grant` Authentication Flow to allow access on _SSH_ and _JMX_ endpoints secured with _Red Hat SSO_
+    ![rh-sso_realm_directgrantflow_otp-off.png](../images/rh-sso_realm_directgrantflow_otp-off.png)
 
 ## Used variables
 
@@ -46,7 +49,7 @@
 
 ### `hawtio-client` to secure the _Fabric Hawtio console_
 
-Create the `hawtio-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
+Create the `hawtio-client` client in a _Red Hat SSO 7.3+_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
 
 - `Client ID`: `hawtio-client`
 - `Access type` must be `public`
@@ -65,10 +68,11 @@ Create the `hawtio-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabri
   Administrator
   SuperUser
   ```
+  ![rh-sso_realm_hawtio-client_scope.png](../images/rh-sso_realm_hawtio-client_scope.png)
 
 ### `ssh-jmx-admin-client` to secure the _Fuse_ administration services
 
-Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
+Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3+_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
 
 - `Client ID`: `ssh-jmx-admin-client`
 - `Access type` must be `confidential`
@@ -87,6 +91,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
   Administrator
   SuperUser
   ```
+  ![rh-sso_realm_ssh-jmx-admin-client_scope.png](../images/rh-sso_realm_ssh-jmx-admin-client_scope.png)
 
 ## Create customized _fabric profiles_ to secure the _Fuse Fabric_ environment
 
@@ -118,7 +123,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
           "truststore-password" : "P@ssw0rd"
         }
         ```
-    -	`keycloak-hawtio.json` - this file is used by the _Red Hat SSO 7.3 Client Adapter for fuse_ on the server (JAAS Login module) side.
+    -	`keycloak-hawtio.json` - this file is used by the _Red Hat SSO 7.3+ Client Adapter for fuse_ on the server (JAAS Login module) side.
         ```json
         {
           "realm" : "fuse-fabric-demo",
@@ -133,8 +138,65 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
           "truststore-password" : "P@ssw0rd"
         }
         ```
+3. Displaying the `rh-sso-hawtio` _fabric profile_ content should be similar to the following:
+    ```zsh
+    JBossFuse:admin@fabric-server> fabric:profile-display -r rh-sso-hawtio
+    Profile id: rh-sso-hawtio
+    Version   : 1.1
+    Attributes:
+      parents: default
+    Containers: fabric-server
 
-3. Deploy the custom `rh-sso-hawtio` _fabric profile_ to all the _fuse fabric servers_. For each _fabric server_, run the following command line:
+    Container settings
+    ----------------------------
+    Repositories :
+      mvn:org.keycloak/keycloak-osgi-features/4.8.20.Final-redhat-00001/xml/features
+
+    Features :
+      keycloak
+
+    System Properties :
+        hawtio.realm = keycloak
+        hawtio.rolePrincipalClasses = 	org.keycloak.adapters.jaas.RolePrincipal,
+        org.apache.karaf.jaas.boot.principal.RolePrincipal
+        hawtio.keycloakEnabled = true
+        hawtio.keycloakClientConfig = profile:keycloak-hawtio-client.json
+
+    Configuration details
+    ----------------------------
+    PID: org.keycloak
+      jaasBearerKeycloakConfigFile profile:keycloak-hawtio.json
+
+    Other resources
+    ----------------------------
+    Resource: keycloak-hawtio.json
+    {
+      "realm" : "fuse-fabric-demo",
+      "resource" : "jaas",
+      "bearer-only" : true,
+      "auth-server-url" : "https://sso.apps.cluster-eb10.sandbox1401.opentlc.com/auth",
+      "ssl-required" : "none",
+      "use-resource-role-mappings": false,
+      "principal-attribute": "preferred_username",
+      "allow-any-hostname" : false,
+      "truststore" : "/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/security/fuse_ts.jks",
+      "truststore-password" : "P@ssw0rd"
+    }
+
+    Resource: keycloak-hawtio-client.json
+    {
+      "realm": "fuse-fabric-demo",
+      "auth-server-url": "https://sso.apps.cluster-eb10.sandbox1401.opentlc.com/auth",
+      "ssl-required": "none",
+      "resource": "hawtio-client",
+      "public-client": true,
+      "confidential-port": 0,
+      "truststore" : "/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/security/fuse_ts.jks",
+      "truststore-password" : "P@ssw0rd"
+    }
+    ```
+
+4. Deploy the custom `rh-sso-hawtio` _fabric profile_ to all the _fuse fabric servers_. For each _fabric server_, run the following command line:
     ```zsh
     fabric:container-add-profile <fabric_server_name> rh-sso-hawtio
     ```
@@ -167,7 +229,49 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
       }
       ```
 
-3. Deploy the custom `rh-sso-administration` _fabric profile_ to all the _fuse fabric_ environment containers (_fabric servers_ or _fabric containers_/_managed containers_). 
+3. Displaying the `rh-sso-administration` _fabric profile_ content should be similar to the following:
+    ```zsh
+    JBossFuse:admin@fabric-server> fabric:profile-display -r rh-sso-administration
+    Profile id: rh-sso-administration
+    Version   : 1.1
+    Attributes:
+      parents: default
+    Containers:
+
+    Container settings
+    ----------------------------
+    Repositories :
+      mvn:org.keycloak/keycloak-osgi-features/4.8.20.Final-redhat-00001/xml/features
+
+    Features :
+      keycloak-jaas
+
+    Configuration details
+    ----------------------------
+    PID: org.keycloak
+      jaasDirectAccessKeycloakConfigFile profile:keycloak-direct-access.json
+
+    PID: io.fabric8.jolokia
+      realm keycloak
+
+    Other resources
+    ----------------------------
+    Resource: keycloak-direct-access.json
+    {
+      "realm": "fuse-fabric-demo",
+      "auth-server-url": "https://sso.apps.cluster-eb10.sandbox1401.opentlc.com/auth",
+      "ssl-required": "all",
+      "resource": "ssh-jmx-admin-client",
+      "credentials": {
+        "secret": "a2f91f8c-87e7-482b-806e-40227c28233a"
+      },
+      "confidential-port": 0,
+      "truststore" : "/Users/jnyilimb/workdata/opt/fuse-karaf/jboss-fuse-6_3/fabric/security/fuse_ts.jks",
+      "truststore-password" : "P@ssw0rd"
+    }
+    ```
+
+4. Deploy the custom `rh-sso-administration` _fabric profile_ to all the _fuse fabric_ environment containers (_fabric servers_ or _fabric containers_/_managed containers_). 
     1. Start with the _managed containers_. For each _managed container_:
         1. Add the `rh-sso-administration` _fabric profile_
             ```zsh
@@ -184,7 +288,9 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
 
     2. Repeat the same steps above for each _fabric server_.
 
-#### :construction: - *_TODO_* - check if encountered errors persist when the _Fuse 6.3 Fabric_ environment is secured with the latest patch of _Red Hat SSO 7.3_ :
+#### :construction: - *_TODO_* - check if encountered errors persist when the _Fuse 6.3 Fabric_ environment is secured with the latest patch of _Red Hat SSO **7.3**_. Here, _Red Hat SSO **7.4.2**_ server was used :
+
+- :warning: Both the _Red Hat SSO **7.3.8** Client Adapter for fuse_ (`org.keycloak/keycloak-osgi-features/4.8.20.Final-redhat-00001/xml/features` repository) and _Red Hat SSO **7.4.2** Client Adapter for fuse_ (`org.keycloak/keycloak-osgi-features/9.0.5.redhat-00001/xml/features` repository) were tested.
 
 - Secured application (_fabric container_) log sample:
   ```log
@@ -193,7 +299,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
   2020-10-22 09:12:39,170 | WARN  | qtp429915276-409 | DirectAccessGrantsLoginModule    | 286 - org.jboss.logging.jboss-logging - 3.4.1.Final-redhat-00001 | Login failed. Invalid status: 500, OAuth2 error. Error: unknown_error, Error description: null
   ```
 
-- _Red Hat SSO 7_ server (**tested with _Red Hat SSO 7.4.2_**) log sample:
+- _Red Hat SSO **7.4.2**_ server log sample:
   ```log
   sso-2-jlshg sso 08:13:16,671 ERROR [org.keycloak.services.error.KeycloakErrorHandler] (default task-18) Uncaught server error: org.keycloak.authentication.AuthenticationFlowException
   sso-2-jlshg sso 	at org.keycloak.keycloak-services@9.0.5.redhat-00001//org.keycloak.authentication.AuthenticationProcessor.authenticateOnly(AuthenticationProcessor.java:982)
@@ -272,7 +378,8 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
   sso-2-jlshg sso 	at java.base/java.lang.Thread.run(Thread.java:834)
   ```
 
-- _Red Hat SSO 7_ server (**tested with _Red Hat SSO 7.4.2_**) realm send an e-mail notification similar to the following if SMTP settings are configured:
+- _Red Hat SSO **7.4.2**_ server realm sends an e-mail notification similar to the following if SMTP settings are configured:
   ```log
-  A failed login attempt was detected to your account on Thu Oct 22 07:09:53 GMT 2020 from x.x.x.x. If this was not you, please contact an administrator.
+  A failed login attempt was detected to your account on Thu Oct 22 07:09:53 GMT 2020 from x.x.x.x.
+  If this was not you, please contact an administrator.
   ```
