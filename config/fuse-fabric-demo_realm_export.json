@@ -1493,11 +1493,11 @@
     "starttls": "",
     "port": "587",
     "auth": "true",
-    "host": "smtp.sendgrid.net",
+    "host": "smtp.host",
     "from": "noreply-rhsso7@redhat.com",
     "fromDisplayName": "Red Hat SSO 7 on OpenShift",
     "ssl": "",
-    "user": "apikey"
+    "user": "username"
   },
   "loginTheme": "rh-sso",
   "accountTheme": "rh-sso-preview",
@@ -1618,7 +1618,7 @@
       "firstBrokerLoginFlowAlias": "first broker login",
       "config": {
         "clientSecret": "**********",
-        "clientId": "5097acba1ebaf43efd2719fbd1beb4a4fcaf1eadef958c889a1c84268830911b",
+        "clientId": "clientId_token",
         "guiOrder": "2",
         "useJwksUrl": "true"
       }
@@ -1637,7 +1637,7 @@
       "firstBrokerLoginFlowAlias": "first broker login",
       "config": {
         "clientSecret": "**********",
-        "clientId": "dbd41eae576cb0be7ebc",
+        "clientId": "clientId_token",
         "guiOrder": "1",
         "useJwksUrl": "true"
       }
