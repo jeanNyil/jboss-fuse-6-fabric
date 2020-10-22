@@ -7,8 +7,20 @@
 - The _Red Hat SSO 7.3 Client Adapter for fuse_ maven artifacts available either via _Nexus_ or _Artifactory_ or other accessible maven repository integrated with _Fuse 6.3 Fabric_ environment. For instance, the _Red Hat SSO **7.3.8** Client Adapter for fuse_ can be downloaded via this [link](https://access.redhat.com/jbossnetwork/restricted/softwareDetail.html?softwareId=81921&product=core.service.rhsso&version=7.3&downloadType=securityPatches).
 - Reference documentation: [_JBoss Fuse 6 Adapter_ for _Red Hat SSO 7.3_](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html/securing_applications_and_services_guide/openid_connect_3#fuse_adapter)
 - :warning: **NOTE - when _SSH_ and/or _JMX_ interfaces (_administration_) ** are secured with _Red Hat SSO_**:
-- If _OTP_ is set on users, make sure it is disabled on the ‘Direct Grant’ Authentication Flow to allow access on _SSH_ and _JMX_ endpoints secured with _Red Hat SSO_
-- Authenticated user with adequate roles cannot start containers. Hawtio seems to use the Fabric _admin_ user by default.
+- If _OTP_ is set on users, make sure it is disabled on the `Direct Grant` Authentication Flow to allow access on _SSH_ and _JMX_ endpoints secured with _Red Hat SSO_
+- The following `realm roles` must be added to the _Red Hat SSO_ realm securing the _Fuse Fabric_ environment (e.g. `fuse-fabric-demo`): 
+  ```
+  admin
+  manager
+  viewer
+  Monitor
+  Operator
+  Maintainer
+  Deployer
+  Auditor
+  Administrator
+  SuperUser
+  ```
 
 ## Used variables
 
@@ -22,10 +34,12 @@
 ### `hawtio-client` to secure the _Fabric Hawtio console_
 
 Create the `hawtio-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
+
+- `Client ID`: `hawtio-client`
 - `Access type` must be `public`
 - `Redirect URI` must point to _Fuse Fabric_ environment _Hawtio_. For instance: `https://localhost:8443/hawtio/*` or `https://<console_vip>:<console_vip_port>/hawtio/*`
   - You must also have a corresponding _Web Origin_ configured. In this case, `https://localhost:8443` or `https://<vip_host>:<vip_port>`
-- The following `client roles` must be added to the `hawtio-client` (according to the _Fuse Fabric_ environment creation). Note that the user needs to have the proper role to successfully authenticate to _Hawtio_:
+- `Full Scope Allowed` selected to `OFF` and restrict realm roles to the following. Note that the user needs to have the proper role to successfully authenticate to _Hawtio_:
   ```
   admin
   manager
@@ -42,9 +56,12 @@ Create the `hawtio-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabri
 ### `ssh-jmx-admin-client` to secure the _Fuse_ administration services
 
 Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fuse-fabric-demo`) with the following attributes:
+
+- `Client ID`: `ssh-jmx-admin-client`
 - `Access type` must be `confidential`
-- `Direct Access Grants Enabled` selected to `On`
-- The following `client roles` must be added to the `hawtio-client` (according to the _Fuse Fabric_ environment creation). Note that the user needs to have `admin` role to perform all operations or another role to perform a subset of operations (for example, the `viewer` role that restricts the user to run only read-only _Karaf_ commands):
+- `Direct Access Grants Enabled` selected to `ON`
+- `Redirect URI` field is mandatory but not used in this case. You can provide a dummy URL. For instance: `https://dummy/*`
+- `Full Scope Allowed` selected to `OFF` and restrict realm roles to the following. Note that the user needs to have `admin` role to perform all operations or another role to perform a subset of operations (for example, the `viewer` role that restricts the user to run only read-only _Karaf_ commands):
   ```
   admin
   manager
@@ -83,6 +100,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
           "ssl-required": "all",
           "resource": "hawtio-client",
           "public-client": true,
+          "confidential-port": 0,
           "truststore" : "<path_to_keystores>/fuse_ts.jks",
           "truststore-password" : "P@ssw0rd"
         }
@@ -129,28 +147,25 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.3_ realm (e.g. `fus
         "credentials": {
           "secret": "<ssh-jmx-admin-client_secret>"
         },
+        "confidential-port": 0,
         "truststore" : "<path_to_keystores>/fuse_ts.jks",
         "truststore-password" : "P@ssw0rd"
       }
       ```
 
-3. Deploy the custom `rh-sso-administration` _fabric profile_ to all the _fuse fabric_environment containers (_fabric servers_ or _fabric containers_/_managed containers_). For each container:
-    1. Add the `rh-sso-administration` _fabric profile_
-        ```zsh
-        fabric:container-add-profile <fabric_container_name> rh-sso-administration
-        ```
+3. Deploy the custom `rh-sso-administration` _fabric profile_ to all the _fuse fabric_environment containers (_fabric servers_ or _fabric containers_/_managed containers_). 
+    1. Start with the _managed containers_. For each _managed container_:
+        1. Add the `rh-sso-administration` _fabric profile_
+            ```zsh
+            fabric:container-add-profile <fabric_container_name> rh-sso-administration
+            ```
 
-    2. Run the following command lines in order to make the _SSH_ and _JMX_ realms use _keycloak_ as identity provider. (:warning: Most of the time, the `org.apache.karaf.management/sshRealm` _PID_ property is automatically set while deploying the `rh-sso-administration` _fabric profile_ )
-        ```zsh
-        fabric:container-connect <fabric_container_name> 'config:propset -p org.apache.karaf.shell sshRealm keycloak'
-        fabric:container-connect <fabric_container_name> 'config:propset -p org.apache.karaf.management jmxRealm keycloak'
-        ```
+        2. Run the following command lines in order to make the _SSH_ and _JMX_ realms use _keycloak_ as identity provider. 
+            ```zsh
+            fabric:container-connect <fabric_container_name> 'config:propset -p org.apache.karaf.management jmxRealm keycloak'
+            fabric:container-connect <fabric_container_name> 'config:propset -p org.apache.karaf.shell sshRealm keycloak'
+            ```
 
-    3. The container will take into account the new _PID_ keys values automatically.
+        3. The container will take into account the new _PID_ keys values automatically.
 
-    4. :warning: **OPTIONAL Workaround:** put the `*.json` files in the `${karaf.etc}` directory
-        ```zsh
-        fabric:container-connect <fabric_container_name> 'cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"'
-        fabric:container-connect <fabric_container_name> 'cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json"'
-        fabric:container-connect <fabric_container_name> 'cat profile:keycloak-hawtio-client.json | tac -f “${karaf.etc}/keycloak-hawtio-client.json”'
-        ```
+    2. Repeat the same steps above for each _fabric server_.
