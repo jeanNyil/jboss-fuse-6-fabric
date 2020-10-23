@@ -3,6 +3,8 @@
 
 ## Assumptions and pre-requisites
 
+- _Red Hat JBoss Fuse 6.3.0 Rollup 9_ has been used in this setup to create a _fuse fabric_ environment managed by a single _fabric server_
+
 - It is assumed at least _Red Hat SSO 7.3.8_ (upstream _keycloak_ version: _4.8.20.Final-redhat-00001_) is leveraged to secure the _Fuse Fabric_ environment
 
 - It is assumed the _Fuse Fabric_ environment containers have the following caracteristics as far as their `jetty` servers are concerned:
@@ -13,7 +15,7 @@
 
 - Reference documentation: [_JBoss Fuse 6 Adapter_ for _Red Hat SSO 7.3_](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html/securing_applications_and_services_guide/openid_connect_3#fuse_adapter)
 
-- The following `realm roles` must be added to the _Red Hat SSO_ realm securing the _Fuse Fabric_ environment (e.g. `fuse-fabric-demo`): 
+- The following `realm roles` have to be added to the _Red Hat SSO_ realm securing the _Fuse Fabric_ environment (e.g. `fuse-fabric-demo`): 
   ```
   admin
   manager
