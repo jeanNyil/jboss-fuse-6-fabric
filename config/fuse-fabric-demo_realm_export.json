@@ -38,6 +38,38 @@
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
   "failureFactor": 30,
+  "users" : [
+    {
+        "username" : "user",
+        "enabled": true,
+        "email" : "user@acme.org",
+        "firstName": "Regular",
+        "lastName": "User",
+        "credentials" : [
+            { "type" : "password",
+              "value" : "P@ssw0rd" }
+        ],
+        "realmRoles": [ "viewer", "offline_access", "uma_authorization" ],
+        "clientRoles": {
+            "account": [ "view-applications", "view-consent", "view-profile", "manage-account" ]
+        }
+    },
+    {
+      "username" : "admin",
+      "enabled": true,
+      "email" : "admin@acme.org",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials" : [
+          { "type" : "password",
+            "value" : "P@ssw0rd" }
+      ],
+      "realmRoles": [ "admin", "offline_access", "uma_authorization" ],
+      "clientRoles": {
+          "account": [ "view-applications", "view-consent", "view-profile", "manage-account" ]
+      }
+    }
+  ],
   "roles": {
     "realm": [
       {
