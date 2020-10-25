@@ -15,7 +15,7 @@
 
 - Reference documentation: [_JBoss Fuse 6 Adapter_ for _Red Hat SSO 7.3_](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html/securing_applications_and_services_guide/openid_connect_3#fuse_adapter)
 
-- The following `realm roles` have to be added to the _Red Hat SSO_ realm securing the _Fuse Fabric_ environment (e.g. `fuse-fabric-demo`): 
+- The following `realm roles` have to be added to the _Red Hat SSO_ [_OpenID Connect_](https://openid.net/connect/) realm securing the _Fuse Fabric_ environment (e.g. `fuse-fabric-demo`): 
   ```
   admin
   manager
