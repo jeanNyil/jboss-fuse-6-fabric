@@ -183,14 +183,7 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     --profile ws-https-gateway \
     fabric-server ws-gateway-node
     ```
-2.	Create the `amq-gateway-node` managed container _JBoss AMQ 6.3_ brokers gateways
-    ```zsh
-    fabric:container-create-child \
-    --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile gateway-mq 
-    fabric-server amq-gateway-node
-    ```
-3.	Create the `msg-brokers-node` managed container for _JBoss AMQ 6.3_ brokers
+2.	Create the `msg-brokers-node` managed container for _JBoss AMQ 6.3_ brokers
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
@@ -198,7 +191,7 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     fabric-server msg-brokers-node
     ```
 
-4.	Create the `fuse-apps-node` managed container for _Fuse 6.3_ applications
+3.	Create the `fuse-apps-node` managed container for _Fuse 6.3_ applications
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
