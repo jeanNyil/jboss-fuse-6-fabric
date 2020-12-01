@@ -187,7 +187,6 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    --profile gateway-mq \
     fabric-server msg-brokers-node
     ```
 
