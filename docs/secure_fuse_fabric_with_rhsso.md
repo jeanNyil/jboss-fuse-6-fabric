@@ -290,7 +290,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
 
     2. Repeat the same steps as above for each _fabric server_.
 
-#### :construction: Investigate the following errors encountered when the _Fuse_ administration services (_SSH_ and _JMX_ interfaces) are secured with _Red Hat SSO_ :
+#### :construction: :eyes: - _TODO_ - Investigate the following errors encountered when the _Fuse_ administration services (_SSH_ and _JMX_ interfaces) are secured with _Red Hat SSO_ :
 
 - :warning: The _Red Hat SSO **7.4.7** Client Adapter for fuse_ (`org.keycloak/keycloak-osgi-features/9.0.13.redhat-00006/xml/features` repository) was tested.
 
