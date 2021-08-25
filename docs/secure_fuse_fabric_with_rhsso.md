@@ -116,7 +116,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
         ```json
         {
           "realm": "fuse-fabric-demo",
-          "auth-server-url": "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+          "auth-server-url": "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
           "ssl-required": "all",
           "resource": "hawtio-client",
           "public-client": true,
@@ -131,7 +131,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
           "realm" : "fuse-fabric-demo",
           "resource" : "jaas",
           "bearer-only" : true,
-          "auth-server-url" : "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+          "auth-server-url" : "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
           "ssl-required" : "all",
           "use-resource-role-mappings": false,
           "principal-attribute": "preferred_username",
@@ -176,7 +176,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
       "realm" : "fuse-fabric-demo",
       "resource" : "jaas",
       "bearer-only" : true,
-      "auth-server-url" : "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+      "auth-server-url" : "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
       "ssl-required" : "none",
       "use-resource-role-mappings": false,
       "principal-attribute": "preferred_username",
@@ -188,7 +188,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
     Resource: keycloak-hawtio-client.json
     {
       "realm": "fuse-fabric-demo",
-      "auth-server-url": "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+      "auth-server-url": "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
       "ssl-required": "none",
       "resource": "hawtio-client",
       "public-client": true,
@@ -219,7 +219,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
       ```json
       {
         "realm": "fuse-fabric-demo",
-        "auth-server-url": "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+        "auth-server-url": "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
         "ssl-required": "all",
         "resource": "ssh-jmx-admin-client",
         "credentials": {
@@ -261,7 +261,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
     Resource: keycloak-direct-access.json
     {
       "realm": "fuse-fabric-demo",
-      "auth-server-url": "https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth",
+      "auth-server-url": "https://sso.apps.jeannyil.sandbox452.opentlc.com/auth",
       "ssl-required": "all",
       "resource": "ssh-jmx-admin-client",
       "credentials": {
@@ -296,7 +296,7 @@ Create the `ssh-jmx-admin-client` client in a _Red Hat SSO 7.4_ realm (e.g. `fus
 
 - Secured application (_fabric container_) log sample:
   ```log
-  2021-06-15 18:48:19,952 | INFO  | qtp403611662-119 | KeycloakDeployment               | 310 - org.jboss.logging.jboss-logging - 3.4.1.Final-redhat-00001 | Loaded URLs from https://sso.apps.jeannyil.sandbox1148.opentlc.com/auth/realms/fuse-fabric-demo/.well-known/openid-configuration
+  2021-06-15 18:48:19,952 | INFO  | qtp403611662-119 | KeycloakDeployment               | 310 - org.jboss.logging.jboss-logging - 3.4.1.Final-redhat-00001 | Loaded URLs from https://sso.apps.jeannyil.sandbox452.opentlc.com/auth/realms/fuse-fabric-demo/.well-known/openid-configuration
   [...]
   2021-06-15 18:53:30,494 | INFO  | b]-nio2-thread-1 | ServerSession                    | 157 - org.apache.sshd.core - 0.14.0.redhat-003 | Server session created from /0:0:0:0:0:0:0:1:62069
   2021-06-15 18:53:30,817 | WARN  | b]-nio2-thread-2 | BearerTokenLoginModule           | 310 - org.jboss.logging.jboss-logging - 3.4.1.Final-redhat-00001 | Error: javax.security.auth.callback.PasswordCallback@5876cfc8 not available to gather authentication information from the user
