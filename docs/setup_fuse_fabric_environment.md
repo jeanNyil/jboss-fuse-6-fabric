@@ -73,7 +73,7 @@
     fabric:create --clean --new-user admin --new-user-password admin123 \
     --new-user-role admin,manager,viewer,Monitor,Operator,Maintainer,Deployer,Auditor,Administrator,SuperUser \
     --zookeeper-password P@ssw0rd --resolver manualip --global-resolver manualip \
-    --manual-ip localhost --profile fabric \
+    --manual-ip 127.0.0.1 --profile fabric \
     --verbose --wait-for-provisioning
     ```
 
@@ -212,8 +212,8 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
 
 2. Deploy the `demo-broker` profile on the broker containers.
     ```zsh
-    fabric:container-add-profile amq-broker-node1 mq-broker-demo-broker.demo-broker
-    fabric:container-add-profile amq-broker-node2 mq-broker-demo-broker.demo-broker
+    fabric:container-add-profile amq-broker-node1 demo-broker
+    fabric:container-add-profile amq-broker-node2 demo-broker
     ```
 
 # Example of Fuse Fabric8 topology with Insight
