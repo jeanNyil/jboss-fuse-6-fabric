@@ -183,18 +183,37 @@ fabric:profile-edit -p io.fabric8.gateway.detecting/trustStorePassword=\${crypt:
     --profile ws-https-gateway \
     fabric-server ws-gateway-node
     ```
-2.	Create the `msg-brokers-node` managed container for _JBoss AMQ 6.3_ brokers
+2.	Create the `amq-broker-node1` and `amq-broker-node2` managed containers for _JBoss AMQ 6.3_ brokers
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    fabric-server msg-brokers-node
+    fabric-server amq-broker-node 2
     ```
 
-3.	Create the `fuse-apps-node` managed container for _Fuse 6.3_ applications
+3.	Create the `fuse-apps-node1` and `fuse-apps-node2` managed containers for _Fuse 6.3_ applications
     ```zsh
     fabric:container-create-child \
     --jvm-opts='-Djavax.net.ssl.trustStore=<path_to_keystores>/fuse_ts.jks -Djavax.net.ssl.trustStorePassword=P@ssw0rd' \
-    fabric-server fuse-apps-node
+    fabric-server fuse-apps-node 2
+    ```
+
+# Deploy a HA cluster (live/backup pair) of _JBoss A-MQ 6.3.0_ brokers
+
+1.	Create the `demo-broker` profile. Replace `<path_to_datastore>` with a valid path.
+    ```zsh
+    fabric:mq-create \
+    --data <path_to_datastore>/demo-broker \
+    --group demo-broker \
+    --profile demo-broker \
+    --minimumInstances 2 \
+    --kind MasterSlave \
+    demo-broker
+    ```
+
+2. Deploy the `demo-broker` profile on the broker containers.
+    ```zsh
+    fabric:container-add-profile amq-broker-node1 mq-broker-demo-broker.demo-broker
+    fabric:container-add-profile amq-broker-node2 mq-broker-demo-broker.demo-broker
     ```
 
 # Example of Fuse Fabric8 topology with Insight
