@@ -6,7 +6,7 @@
     -dname "CN=fuse-fabric,OU=Red Hat Consulting,O=Red Hat France,L=Paris,ST=Ile De France,C=FR" \
     -alias fuse-fabric \
     -keypass P@ssw0rd -storepass P@ssw0rd \
-    -v -ext "san=DNS:localhost" \
+    -v -ext "san=DNS:localhost,IP:127.0.0.1" \
     -keystore fuse-fabric-ssl.jks
     ```
 
